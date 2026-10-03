@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://decisions.directory/schemas/v0.1/execute-request.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["dcp_version", "request_id", "decision_id", "action_id", "arguments", "phase", "expected_catalog_revision", "expected_state_revision", "evidence", "confirmed"],
+  "properties": {
+    "dcp_version": { "$ref": "common.json#/$defs/version" },
+    "request_id": { "$ref": "common.json#/$defs/id" },
+    "decision_id": { "$ref": "common.json#/$defs/id" },
+    "action_id": { "$ref": "common.json#/$defs/id" },
+    "arguments": { "type": "object" },
+    "phase": { "enum": ["prepare", "commit", "cancel"] },
+    "expected_catalog_revision": { "$ref": "common.json#/$defs/revision" },
+    "expected_state_revision": { "$ref": "common.json#/$defs/revision" },
+    "prepared_receipt_id": { "$ref": "common.json#/$defs/id" },
+    "confirmed": { "type": "boolean" },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["utterance_id", "transcript_revision", "final"],
+      "properties": {
+        "utterance_id": { "$ref": "common.json#/$defs/id" },
+        "transcript_revision": { "type": "integer", "minimum": 1 },
+        "final": { "type": "boolean" }
+      }
+    }
+  },
+  "allOf": [
+    { "if": { "properties": { "phase": { "const": "cancel" } }, "required": ["phase"] }, "then": { "required": ["prepared_receipt_id"] } }
+  ]
+}

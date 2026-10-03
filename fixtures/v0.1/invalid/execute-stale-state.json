@@ -1,0 +1,12 @@
+{
+  "dcp_version": "0.1",
+  "request_id": "req_scene_stale",
+  "decision_id": "dec_scene_stale",
+  "action_id": "lights.scene",
+  "arguments": { "scene": "studio" },
+  "phase": "commit",
+  "expected_catalog_revision": "cat:4fba",
+  "expected_state_revision": "state:old",
+  "confirmed": false,
+  "evidence": { "utterance_id": "utt_scene_1", "transcript_revision": 4, "final": true }
+}

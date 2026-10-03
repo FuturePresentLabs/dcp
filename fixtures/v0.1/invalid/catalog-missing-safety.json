@@ -1,0 +1,6 @@
+{
+  "dcp_version": "0.1",
+  "provider": { "id": "bad", "name": "Bad", "instance": "https://bad.example" },
+  "catalog_revision": "1", "state_revision": "1", "observed_at": "2026-10-03T06:00:00Z",
+  "actions": [{ "id": "lights.on", "domain": "lights", "title": "On", "description": "Turn on", "input_schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object" }, "phases": ["commit"], "availability": { "available": true } }]
+}

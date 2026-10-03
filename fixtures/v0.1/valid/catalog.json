@@ -1,0 +1,26 @@
+{
+  "dcp_version": "0.1",
+  "provider": { "id": "hue", "name": "Philips Hue", "instance": "https://home.example/dcp" },
+  "catalog_revision": "cat:4fba",
+  "state_revision": "state:901",
+  "observed_at": "2026-10-03T06:00:00Z",
+  "expires_at": "2026-10-03T06:00:01Z",
+  "state": { "reachable_lights": 8 },
+  "actions": [
+    {
+      "id": "lights.brighter", "domain": "lights", "title": "Increase brightness", "description": "Increase the selected lights by a bounded relative amount.",
+      "input_schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "additionalProperties": false, "required": ["zone", "amount"], "properties": { "zone": { "type": "string" }, "amount": { "type": "integer", "minimum": 1, "maximum": 50 } } },
+      "phases": ["commit"],
+      "safety": { "idempotent": false, "reversible": false, "requires_final": true, "confirmation_required": false },
+      "availability": { "available": false, "reason_code": "bridge_unreachable", "reason": "Hue bridge did not answer the latest observation." }
+    },
+    {
+      "id": "lights.scene", "domain": "lights", "title": "Activate scene", "description": "Activate an exact provider-owned scene.",
+      "input_schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "additionalProperties": false, "required": ["scene"], "properties": { "scene": { "enum": ["studio", "night"] } } },
+      "phases": ["commit"],
+      "safety": { "idempotent": true, "reversible": false, "requires_final": true, "confirmation_required": false },
+      "availability": { "available": true }
+    }
+  ],
+  "tree": [{ "id": "lights", "label": "Lights", "action_ids": ["lights.brighter", "lights.scene"] }]
+}

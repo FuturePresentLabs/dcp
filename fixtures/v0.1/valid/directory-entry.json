@@ -1,0 +1,7 @@
+{
+  "name": "Synesthesia",
+  "source": "https://github.com/FuturePresentLabs/synesthesia",
+  "discovery": "https://studio.example/.well-known/dcp",
+  "contact": "https://github.com/FuturePresentLabs/synesthesia/issues",
+  "claims": [{ "version": "0.1", "profile": "catalog-provider", "status": "self-tested", "fixture": "https://studio.example/dcp-fixture.json", "conformance_command": "cargo test dcp_conformance" }]
+}

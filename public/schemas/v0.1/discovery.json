@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://decisions.directory/schemas/v0.1/discovery.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["dcp", "provider", "versions", "endpoints", "authorization"],
+  "properties": {
+    "dcp": { "const": "https://decisions.directory/spec/v0.1" },
+    "provider": { "$ref": "common.json#/$defs/provider" },
+    "versions": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "common.json#/$defs/version" } },
+    "endpoints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["catalog"],
+      "properties": {
+        "catalog": { "type": "string", "format": "uri-reference" },
+        "execute": { "type": "string", "format": "uri-reference" },
+        "stream": { "type": "string", "format": "uri" }
+      }
+    },
+    "authorization": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["scheme"],
+        "properties": {
+          "scheme": { "enum": ["none", "bearer", "oauth2", "mtls"] },
+          "issuer": { "type": "string", "format": "uri" },
+          "authorization_uri": { "type": "string", "format": "uri" },
+          "token_uri": { "type": "string", "format": "uri" },
+          "scopes": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+        },
+        "allOf": [
+          { "if": { "properties": { "scheme": { "const": "none" } }, "required": ["scheme"] }, "then": { "properties": { "issuer": false, "authorization_uri": false, "token_uri": false, "scopes": false } } }
+        ]
+      }
+    }
+  }
+}

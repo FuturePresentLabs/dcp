@@ -1,0 +1,12 @@
+{
+  "dcp_version": "0.1",
+  "request_id": "req_22",
+  "decision_id": "dec_07",
+  "action_id": "browser.ensure",
+  "arguments": {},
+  "phase": "prepare",
+  "expected_catalog_revision": "cat:surf:8",
+  "expected_state_revision": "state:surf:51",
+  "confirmed": false,
+  "evidence": { "utterance_id": "utt_91", "transcript_revision": 3, "final": false }
+}

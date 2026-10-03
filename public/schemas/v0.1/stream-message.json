@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://decisions.directory/schemas/v0.1/stream-message.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["dcp_version", "message_id", "session_id", "sequence", "occurred_at", "type", "payload"],
+  "properties": {
+    "dcp_version": { "$ref": "common.json#/$defs/version" },
+    "message_id": { "$ref": "common.json#/$defs/id" },
+    "session_id": { "$ref": "common.json#/$defs/id" },
+    "sequence": { "type": "integer", "minimum": 1 },
+    "occurred_at": { "$ref": "common.json#/$defs/timestamp" },
+    "type": { "enum": ["transcript.observed", "catalog.observed", "decision.proposed", "action.prepared", "decision.committed", "decision.cancelled", "execution.receipt"] },
+    "payload": { "type": "object" }
+  },
+  "allOf": [
+    { "if": { "properties": { "type": { "const": "transcript.observed" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "#/$defs/transcript" } } } },
+    { "if": { "properties": { "type": { "const": "catalog.observed" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "#/$defs/catalog_observed" } } } },
+    { "if": { "properties": { "type": { "const": "decision.proposed" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "#/$defs/decision" } } } },
+    { "if": { "properties": { "type": { "const": "action.prepared" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "#/$defs/execution_event" } } } },
+    { "if": { "properties": { "type": { "const": "decision.committed" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "#/$defs/execution_event" } } } },
+    { "if": { "properties": { "type": { "const": "decision.cancelled" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "#/$defs/cancelled" } } } },
+    { "if": { "properties": { "type": { "const": "execution.receipt" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "receipt.json" } } } }
+  ],
+  "$defs": {
+    "transcript": {
+      "type": "object", "additionalProperties": false,
+      "required": ["utterance_id", "revision", "text", "final"],
+      "properties": {
+        "utterance_id": { "$ref": "common.json#/$defs/id" },
+        "revision": { "type": "integer", "minimum": 1 },
+        "supersedes_revision": { "type": "integer", "minimum": 1 },
+        "text": { "type": "string" },
+        "final": { "type": "boolean" }
+      },
+      "allOf": [{ "if": { "properties": { "revision": { "const": 1 } }, "required": ["revision"] }, "then": { "not": { "required": ["supersedes_revision"] } }, "else": { "required": ["supersedes_revision"] } }]
+    },
+    "catalog_observed": {
+      "type": "object", "additionalProperties": false,
+      "required": ["provider_id", "catalog_revision", "state_revision"],
+      "properties": {
+        "provider_id": { "$ref": "common.json#/$defs/id" },
+        "catalog_revision": { "$ref": "common.json#/$defs/revision" },
+        "state_revision": { "$ref": "common.json#/$defs/revision" }
+      }
+    },
+    "decision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["decision_id", "parent_decision_id", "utterance_id", "transcript_revision", "catalogs", "selection"],
+      "properties": {
+        "decision_id": { "$ref": "common.json#/$defs/id" },
+        "parent_decision_id": { "oneOf": [{ "$ref": "common.json#/$defs/id" }, { "type": "null" }] },
+        "utterance_id": { "$ref": "common.json#/$defs/id" },
+        "transcript_revision": { "type": "integer", "minimum": 1 },
+        "catalogs": { "type": "object", "minProperties": 1, "additionalProperties": { "$ref": "common.json#/$defs/revision" } },
+        "selection": {
+          "type": "object", "additionalProperties": false,
+          "required": ["provider_id", "action_id", "arguments"],
+          "properties": {
+            "provider_id": { "$ref": "common.json#/$defs/id" },
+            "action_id": { "$ref": "common.json#/$defs/id" },
+            "arguments": { "type": "object" }
+          }
+        }
+      }
+    },
+    "execution_event": {
+      "type": "object", "additionalProperties": false,
+      "required": ["decision_id", "receipt_id"],
+      "properties": { "decision_id": { "$ref": "common.json#/$defs/id" }, "receipt_id": { "$ref": "common.json#/$defs/id" } }
+    },
+    "cancelled": {
+      "type": "object", "additionalProperties": false,
+      "required": ["decision_id", "reason"],
+      "properties": { "decision_id": { "$ref": "common.json#/$defs/id" }, "receipt_id": { "$ref": "common.json#/$defs/id" }, "reason": { "enum": ["superseded", "final_mismatch", "catalog_changed", "state_changed", "caller_cancelled", "provider_cancelled"] } }
+    }
+  }
+}

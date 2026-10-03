@@ -1,0 +1,15 @@
+{
+  "dcp_version": "0.1",
+  "receipt_id": "rcpt_22",
+  "request_id": "req_22",
+  "provider_id": "surf",
+  "action_id": "browser.ensure",
+  "phase": "prepare",
+  "outcome": "prepared",
+  "expected_catalog_revision": "cat:surf:8",
+  "expected_state_revision": "state:surf:51",
+  "observed_catalog_revision": "cat:surf:8",
+  "observed_state_revision": "state:surf:51",
+  "resulting_state_revision": "state:surf:52",
+  "observed_at": "2026-10-03T06:00:00Z"
+}

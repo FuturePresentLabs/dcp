@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://decisions.directory/schemas/v0.1/common.json",
+  "$defs": {
+    "version": { "const": "0.1" },
+    "revision": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "instance"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "instance": { "type": "string", "format": "uri" }
+      }
+    },
+    "error_code": {
+      "enum": ["invalid_request", "unsupported_version", "unauthorized", "forbidden", "action_not_found", "action_unavailable", "stale_catalog", "stale_state", "finality_required", "confirmation_required", "unsafe_phase", "conflict", "cancellation_failed", "internal_error"]
+    },
+    "problem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message", "retryable"],
+      "properties": {
+        "code": { "$ref": "#/$defs/error_code" },
+        "message": { "type": "string", "minLength": 1 },
+        "retryable": { "type": "boolean" },
+        "details": { "type": "object" }
+      }
+    }
+  }
+}

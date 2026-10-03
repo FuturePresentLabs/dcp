@@ -1,0 +1,7 @@
+{
+  "dcp": "https://decisions.directory/spec/v0.1",
+  "provider": { "id": "hue", "name": "Philips Hue", "instance": "https://home.example/dcp" },
+  "versions": ["0.1"],
+  "endpoints": { "catalog": "/v1/decisions", "execute": "/v1/decisions/execute", "stream": "wss://home.example/v1/decisions/stream" },
+  "authorization": [{ "scheme": "bearer", "issuer": "https://identity.example", "scopes": ["dcp.catalog.read", "dcp.execute"] }]
+}

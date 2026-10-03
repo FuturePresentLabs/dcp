@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://decisions.directory/schemas/v0.1/receipt.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["dcp_version", "receipt_id", "request_id", "provider_id", "action_id", "phase", "outcome", "expected_catalog_revision", "expected_state_revision", "observed_catalog_revision", "observed_state_revision", "observed_at"],
+  "properties": {
+    "dcp_version": { "$ref": "common.json#/$defs/version" },
+    "receipt_id": { "$ref": "common.json#/$defs/id" },
+    "request_id": { "$ref": "common.json#/$defs/id" },
+    "provider_id": { "$ref": "common.json#/$defs/id" },
+    "action_id": { "$ref": "common.json#/$defs/id" },
+    "phase": { "enum": ["prepare", "commit", "cancel"] },
+    "outcome": { "enum": ["prepared", "applied", "cancelled", "noop", "rejected"] },
+    "expected_catalog_revision": { "$ref": "common.json#/$defs/revision" },
+    "expected_state_revision": { "$ref": "common.json#/$defs/revision" },
+    "observed_catalog_revision": { "$ref": "common.json#/$defs/revision" },
+    "observed_state_revision": { "$ref": "common.json#/$defs/revision" },
+    "resulting_catalog_revision": { "$ref": "common.json#/$defs/revision" },
+    "resulting_state_revision": { "$ref": "common.json#/$defs/revision" },
+    "observed_at": { "$ref": "common.json#/$defs/timestamp" },
+    "error": { "$ref": "common.json#/$defs/problem" }
+  },
+  "allOf": [
+    { "if": { "properties": { "outcome": { "const": "rejected" } }, "required": ["outcome"] }, "then": { "required": ["error"] }, "else": { "not": { "required": ["error"] } } }
+  ]
+}

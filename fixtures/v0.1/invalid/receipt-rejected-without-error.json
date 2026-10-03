@@ -1,0 +1,4 @@
+{
+  "dcp_version": "0.1", "receipt_id": "r1", "request_id": "q1", "provider_id": "hue", "action_id": "lights.on", "phase": "commit", "outcome": "rejected",
+  "expected_catalog_revision": "1", "expected_state_revision": "1", "observed_catalog_revision": "2", "observed_state_revision": "1", "observed_at": "2026-10-03T06:00:00Z"
+}

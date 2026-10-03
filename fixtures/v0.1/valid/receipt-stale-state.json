@@ -1,0 +1,15 @@
+{
+  "dcp_version": "0.1",
+  "receipt_id": "rcpt_stale_1",
+  "request_id": "req_scene_stale",
+  "provider_id": "hue",
+  "action_id": "lights.scene",
+  "phase": "commit",
+  "outcome": "rejected",
+  "expected_catalog_revision": "cat:4fba",
+  "expected_state_revision": "state:old",
+  "observed_catalog_revision": "cat:4fba",
+  "observed_state_revision": "state:901",
+  "observed_at": "2026-10-03T06:00:00Z",
+  "error": { "code": "stale_state", "message": "Provider state changed; refresh the catalog and decide again.", "retryable": true }
+}
