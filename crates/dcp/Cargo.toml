@@ -1,0 +1,10 @@
+[package]
+name = "dcp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Canonical Rust wire types for Decision Catalog Protocol 0.1"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
