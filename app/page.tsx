@@ -90,9 +90,14 @@ export default function Home() {
         <div className="spec-table">
           <div className="spec-row spec-header"><span>OPERATION</span><span>REQUIREMENT</span><span>PURPOSE</span></div>
           <div className="spec-row"><code>GET /v1/decisions</code><strong>MUST</strong><p>Return a finite, state-derived catalog with provider and observation revisions.</p></div>
-          <div className="spec-row"><code>POST /v1/decisions/plan</code><strong>MAY</strong><p>Select one exact action locally. A caller may instead run RLCD over the returned catalog.</p></div>
+          <div className="spec-row"><code>POST /v1/decisions/plan</code><strong>EXTENSION</strong><p>Provider-specific local selection; intentionally outside the DCP 0.1 core contract.</p></div>
           <div className="spec-row"><code>POST /v1/decisions/execute</code><strong>SHOULD</strong><p>Validate the expected revision, apply the action, and return a typed receipt.</p></div>
           <div className="spec-row"><code>/.well-known/dcp</code><strong>SHOULD</strong><p>Advertise protocol versions, transports, endpoints, and provider identity.</p></div>
+        </div>
+        <div className="spec-links">
+          <a href="https://github.com/FuturePresentLabs/dcp/blob/main/spec/v0.1/README.md">NORMATIVE DCP 0.1 ↗</a>
+          <a href="https://github.com/FuturePresentLabs/dcp/tree/main/public/schemas/v0.1">JSON SCHEMAS ↗</a>
+          <a href="https://github.com/FuturePresentLabs/dcp/tree/main/conformance/v0.1">CONFORMANCE SUITE ↗</a>
         </div>
       </section>
 
@@ -182,19 +187,23 @@ export default function Home() {
             </ul>
           </div>
           <pre><code>{`{
-  "utterance_id": "utt_91",
-  "transcript": {
-    "revision": 3,
-    "text": "open a browser",
-    "final": false
-  },
-  "parent_decision": "dec_02",
-  "catalogs": {
-    "surf": "obs_104"
-  },
-  "selection": {
-    "action": "browser.ensure",
-    "phase": "prepare"
+  "dcp_version": "0.1",
+  "message_id": "msg_03",
+  "session_id": "sess_91",
+  "sequence": 3,
+  "occurred_at": "2026-10-03T06:00:00Z",
+  "type": "decision.proposed",
+  "payload": {
+    "decision_id": "dec_03",
+    "parent_decision_id": "dec_02",
+    "utterance_id": "utt_91",
+    "transcript_revision": 3,
+    "catalogs": { "surf": "cat_104" },
+    "selection": {
+      "provider_id": "surf",
+      "action_id": "browser.ensure",
+      "arguments": {}
+    }
   }
 }`}</code></pre>
         </div>
@@ -207,22 +216,29 @@ export default function Home() {
           <pre><code>{`GET /v1/decisions?depth=2
 
 {
-  "provider": "synesthesia",
-  "revision": "022782…",
-  "action_count": 47,
+  "dcp_version": "0.1",
+  "provider": {
+    "id": "synesthesia",
+    "name": "Synesthesia",
+    "instance": "https://studio.example/dcp"
+  },
+  "catalog_revision": "cat_022782",
+  "state_revision": "state_619",
+  "observed_at": "2026-10-03T06:00:00Z",
   "state": {
     "transport": "stopped",
     "recording": false
   },
-  "decisions": [{
-    "name": "midi",
-    "path": "midi",
-    "children": [{
-      "name": "disconnect",
-      "actions": [
-        "midi.disconnect.launchkey.piano"
-      ]
-    }]
+  "actions": [{
+    "id": "midi.disconnect.launchkey.piano",
+    "domain": "midi",
+    "phases": ["commit"],
+    "safety": {
+      "idempotent": true,
+      "reversible": true,
+      "requires_final": true,
+      "confirmation_required": false
+    }
   }]
 }`}</code></pre>
         </div>
@@ -232,7 +248,7 @@ export default function Home() {
         <div className="section-tag">06 / IMPLEMENTATIONS</div>
         <div className="directory-head"><h2>WHO SPEAKS DCP?</h2><p>Implementations are listed by the decisions they own. A listing is evidence of an inspectable catalog—not a certification of the underlying system.</p></div>
         <div className="implementation-list">
-          <a href="https://github.com/FuturePresentLabs/synesthesia"><span>REFERENCE PROVIDER · LIVE</span><b>SYNESTHESIA</b><p>State-derived studio catalog covering composition, inserts, MIDI, playback, and recording.</p><em>47 ACTIONS ↗</em></a>
+          <a href="https://github.com/FuturePresentLabs/synesthesia"><span>EXPERIMENTAL PROVIDER · 0.1 MIGRATION</span><b>SYNESTHESIA</b><p>State-derived studio catalog covering composition, inserts, MIDI, playback, and recording.</p><em>47 ACTIONS ↗</em></a>
           <a href="https://github.com/FuturePresentLabs/surf"><span>PROVIDER · IN PROGRESS</span><b>SURF</b><p>Revision-bound semantic browser observations and execution receipts.</p><em>BROWSER ↗</em></a>
           <a href="https://github.com/FuturePresentLabs/JARVIS"><span>CLIENT / COMPOSER · IN PROGRESS</span><b>JARVIS</b><p>Streams utterance revisions, composes provider catalogs, and gates speculative execution.</p><em>VOICE ↗</em></a>
         </div>
@@ -246,7 +262,7 @@ export default function Home() {
             <li><span>01</span><div><b>PUBLISH DISCOVERY</b><p>Serve <code>/.well-known/dcp</code> with provider identity, supported protocol versions, and catalog endpoint.</p></div></li>
             <li><span>02</span><div><b>PROVIDE A FIXTURE</b><p>Include one redacted catalog response and its deterministic revision test.</p></div></li>
             <li><span>03</span><div><b>DECLARE SEMANTICS</b><p>Mark actions observe, prepare, or commit, including idempotency and reversibility.</p></div></li>
-            <li><span>04</span><div><b>OPEN A LISTING PR</b><p>Add the manifest to the registry with project, source, contact, and conformance status.</p></div></li>
+            <li><span>04</span><div><b>OPEN A LISTING PR</b><p>Add a valid entry with exact version, profile, source, contact, fixture, conformance command, and verification status.</p></div></li>
           </ol>
         </div>
         <a className="listing-cta" href="https://github.com/FuturePresentLabs/dcp/issues/new">SUBMIT AN IMPLEMENTATION ↗</a>
@@ -266,7 +282,7 @@ export default function Home() {
             <small>THE OPEN PROTOCOL FOR BOUNDED INTELLIGENCE</small>
             <strong>BUILD A PROVIDER.</strong>
           </div>
-          <a href="https://decisioncatalogprotocol.com">READ THE DRAFT ↗</a>
+          <a href="https://github.com/FuturePresentLabs/dcp/blob/main/spec/v0.1/README.md">READ DCP 0.1 ↗</a>
         </div>
       </section>
 
