@@ -1,7 +1,13 @@
 {
-  "name": "site-creator-vinext-starter",
+  "name": "decision-catalog-protocol",
   "version": "0.1.0",
   "private": true,
+  "description": "Specification site and implementation directory for Decision Catalog Protocol (DCP)",
+  "homepage": "https://decisions.directory",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FuturePresentLabs/dcp.git"
+  },
   "engines": {
     "node": ">=22.13.0"
   },

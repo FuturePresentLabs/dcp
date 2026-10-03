@@ -249,7 +249,7 @@ export default function Home() {
             <li><span>04</span><div><b>OPEN A LISTING PR</b><p>Add the manifest to the registry with project, source, contact, and conformance status.</p></div></li>
           </ol>
         </div>
-        <a className="listing-cta" href="https://github.com/FuturePresentLabs/JARVIS/issues/new">SUBMIT AN IMPLEMENTATION ↗</a>
+        <a className="listing-cta" href="https://github.com/FuturePresentLabs/dcp/issues/new">SUBMIT AN IMPLEMENTATION ↗</a>
       </section>
 
       <section className="flow" id="start">
