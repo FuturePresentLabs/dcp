@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>dev.fpl.dcp-macos-unibus</string>
+  <key>ProgramArguments</key><array>
+    <string>/Users/ajmwagar/.local/bin/unibus-dcp</string><string>publish</string>
+    <string>/Users/ajmwagar/.config/unibus/dcp-macos.json</string>
+  </array>
+  <key>EnvironmentVariables</key><dict><key>HOME</key><string>/Users/ajmwagar</string></dict>
+  <key>RunAtLoad</key><true/><key>KeepAlive</key><true/><key>ThrottleInterval</key><integer>3</integer>
+  <key>StandardOutPath</key><string>/Users/ajmwagar/Library/Logs/dcp-macos-unibus.log</string>
+  <key>StandardErrorPath</key><string>/Users/ajmwagar/Library/Logs/dcp-macos-unibus.err.log</string>
+</dict></plist>

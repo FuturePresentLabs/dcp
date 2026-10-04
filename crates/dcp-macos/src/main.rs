@@ -20,6 +20,7 @@ use dcp::{
 use serde_json::{json, Value};
 
 const PROVIDER_ID: &str = "macos.local";
+const DCP_HEADERS: [(&str, &str); 1] = [("dcp-version", dcp::VERSION)];
 
 #[derive(Clone)]
 struct AppState {
@@ -56,28 +57,35 @@ async fn main() {
         .expect("serve DCP macOS provider");
 }
 
-async fn discovery(State(state): State<Arc<AppState>>) -> Json<Discovery> {
-    Json(Discovery {
-        dcp: dcp::SPEC.into(),
-        provider: state.provider.clone(),
-        versions: vec![dcp::VERSION.into()],
-        endpoints: Endpoints {
-            catalog: "/v1/decisions".into(),
-            execute: Some("/v1/decisions/execute".into()),
-            stream: None,
-        },
-        authorization: vec![],
-    })
+async fn discovery(
+    State(state): State<Arc<AppState>>,
+) -> ([(&'static str, &'static str); 1], Json<Discovery>) {
+    (
+        DCP_HEADERS,
+        Json(Discovery {
+            dcp: dcp::SPEC.into(),
+            provider: state.provider.clone(),
+            versions: vec![dcp::VERSION.into()],
+            endpoints: Endpoints {
+                catalog: "/v1/decisions".into(),
+                execute: Some("/v1/decisions/execute".into()),
+                stream: None,
+            },
+            authorization: vec![],
+        }),
+    )
 }
 
-async fn catalog(State(state): State<Arc<AppState>>) -> Json<Catalog> {
-    Json(build_catalog(&state.provider))
+async fn catalog(
+    State(state): State<Arc<AppState>>,
+) -> ([(&'static str, &'static str); 1], Json<Catalog>) {
+    (DCP_HEADERS, Json(build_catalog(&state.provider)))
 }
 
 async fn execute(
     State(state): State<Arc<AppState>>,
     Json(mut wire): Json<Value>,
-) -> Result<Json<Receipt>, (StatusCode, String)> {
+) -> Result<([(&'static str, &'static str); 1], Json<Receipt>), (StatusCode, String)> {
     normalize_legacy_evidence(&mut wire);
     let request: ExecuteRequest = serde_json::from_value(wire).map_err(|error| {
         (
@@ -87,7 +95,7 @@ async fn execute(
     })?;
     let catalog = build_catalog(&state.provider);
     let result = validate_and_apply(&catalog, &request);
-    Ok(Json(receipt(&catalog, &request, result)))
+    Ok((DCP_HEADERS, Json(receipt(&catalog, &request, result))))
 }
 
 // DCP 0.1 was corrected from voice-specific evidence names while still in

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>dev.fpl.dcp-macos</string>
+  <key>ProgramArguments</key><array><string>/Users/ajmwagar/.local/bin/dcp-macos</string></array>
+  <key>EnvironmentVariables</key><dict><key>HOME</key><string>/Users/ajmwagar</string></dict>
+  <key>RunAtLoad</key><true/><key>KeepAlive</key><true/>
+  <key>StandardOutPath</key><string>/Users/ajmwagar/Library/Logs/dcp-macos.log</string>
+  <key>StandardErrorPath</key><string>/Users/ajmwagar/Library/Logs/dcp-macos.err.log</string>
+</dict></plist>
