@@ -8,6 +8,7 @@ use std::{
 
 use axum::{
     extract::State,
+    http::StatusCode,
     routing::{get, post},
     Json, Router,
 };
@@ -75,11 +76,49 @@ async fn catalog(State(state): State<Arc<AppState>>) -> Json<Catalog> {
 
 async fn execute(
     State(state): State<Arc<AppState>>,
-    Json(request): Json<ExecuteRequest>,
-) -> Json<Receipt> {
+    Json(mut wire): Json<Value>,
+) -> Result<Json<Receipt>, (StatusCode, String)> {
+    normalize_legacy_evidence(&mut wire);
+    let request: ExecuteRequest = serde_json::from_value(wire).map_err(|error| {
+        (
+            StatusCode::BAD_REQUEST,
+            format!("invalid DCP request: {error}"),
+        )
+    })?;
     let catalog = build_catalog(&state.provider);
     let result = validate_and_apply(&catalog, &request);
-    Json(receipt(&catalog, &request, result))
+    Ok(Json(receipt(&catalog, &request, result)))
+}
+
+// DCP 0.1 was corrected from voice-specific evidence names while still in
+// draft. Accept the original wire shape at this edge so already-deployed
+// UniBus bindings can migrate independently; the canonical catalog and all
+// newly emitted documents use the provider-neutral shape.
+fn normalize_legacy_evidence(wire: &mut Value) {
+    let Some(evidence) = wire.get_mut("evidence").and_then(Value::as_object_mut) else {
+        return;
+    };
+    let Some(chain_id) = evidence.remove("utterance_id") else {
+        return;
+    };
+    let revision = evidence
+        .remove("transcript_revision")
+        .and_then(|value| value.as_u64())
+        .unwrap_or(1);
+    let final_ = evidence
+        .remove("final")
+        .and_then(|value| value.as_bool())
+        .unwrap_or(false);
+    evidence.insert("chain_id".into(), chain_id);
+    evidence.insert("revision".into(), json!(revision));
+    if revision > 1 {
+        evidence.insert("supersedes_revision".into(), json!(revision - 1));
+    }
+    evidence.insert("kind".into(), json!("text.transcript"));
+    evidence.insert(
+        "status".into(),
+        json!(if final_ { "final" } else { "partial" }),
+    );
 }
 
 fn build_catalog(provider: &Provider) -> Catalog {
@@ -411,5 +450,16 @@ mod tests {
     fn app_ids_are_bounded_safe_selectors() {
         assert_eq!(slug("Visual Studio Code"), "visual-studio-code");
         assert_eq!(slug("A/B.app"), "a-b-app");
+    }
+
+    #[test]
+    fn deployed_voice_specific_evidence_is_normalized_at_the_edge() {
+        let mut wire =
+            json!({"evidence":{"utterance_id":"turn-1","transcript_revision":3,"final":true}});
+        normalize_legacy_evidence(&mut wire);
+        assert_eq!(wire["evidence"]["chain_id"], "turn-1");
+        assert_eq!(wire["evidence"]["revision"], 3);
+        assert_eq!(wire["evidence"]["supersedes_revision"], 2);
+        assert_eq!(wire["evidence"]["status"], "final");
     }
 }
