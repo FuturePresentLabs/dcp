@@ -46,8 +46,8 @@ export function catalogErrors(catalog) {
 export function streamErrors(messages) {
   const errors = [];
   const sessions = new Map();
-  const transcripts = new Map();
-  const finalUtterances = new Set();
+  const evidence = new Map();
+  const terminalChains = new Set();
   const catalogs = new Map();
   const decisions = new Map();
   const terminal = new Set();
@@ -58,24 +58,24 @@ export function streamErrors(messages) {
     sessions.set(message.session_id, message.sequence);
 
     const payload = message.payload;
-    if (message.type === "transcript.observed") {
-      const previous = transcripts.get(payload.utterance_id);
-      if (finalUtterances.has(payload.utterance_id)) errors.push(`transcript ${payload.utterance_id} changed after finality`);
-      if (!previous && payload.revision !== 1) errors.push(`transcript ${payload.utterance_id} must start at revision 1`);
-      if (previous && payload.revision !== previous.revision + 1) errors.push(`transcript ${payload.utterance_id} revision is not monotonic`);
-      if (previous && payload.supersedes_revision !== previous.revision) errors.push(`transcript ${payload.utterance_id} does not supersede its immediate predecessor`);
-      transcripts.set(payload.utterance_id, payload);
-      if (payload.final) finalUtterances.add(payload.utterance_id);
+    if (message.type === "evidence.observed") {
+      const previous = evidence.get(payload.chain_id);
+      if (terminalChains.has(payload.chain_id)) errors.push(`evidence ${payload.chain_id} changed after terminal status`);
+      if (!previous && payload.revision !== 1) errors.push(`evidence ${payload.chain_id} must start at revision 1`);
+      if (previous && payload.revision !== previous.revision + 1) errors.push(`evidence ${payload.chain_id} revision is not monotonic`);
+      if (previous && payload.supersedes_revision !== previous.revision) errors.push(`evidence ${payload.chain_id} does not supersede its immediate predecessor`);
+      evidence.set(payload.chain_id, payload);
+      if (["final", "retracted"].includes(payload.status)) terminalChains.add(payload.chain_id);
     }
     if (message.type === "catalog.observed") catalogs.set(payload.provider_id, payload.catalog_revision);
     if (message.type === "decision.proposed") {
       if (decisions.has(payload.decision_id)) errors.push(`duplicate decision ${payload.decision_id}`);
-      const transcript = transcripts.get(payload.utterance_id);
-      if (!transcript || transcript.revision < payload.transcript_revision) errors.push(`decision ${payload.decision_id} references unknown transcript revision`);
+      const observed = evidence.get(payload.chain_id);
+      if (!observed || observed.revision < payload.evidence_revision) errors.push(`decision ${payload.decision_id} references unknown evidence revision`);
       if (payload.parent_decision_id !== null) {
         const parent = decisions.get(payload.parent_decision_id);
         if (!parent) errors.push(`decision ${payload.decision_id} references unknown or future parent`);
-        else if (parent.utterance_id !== payload.utterance_id) errors.push(`decision ${payload.decision_id} parent belongs to another utterance`);
+        else if (parent.chain_id !== payload.chain_id) errors.push(`decision ${payload.decision_id} parent belongs to another evidence chain`);
       }
       for (const [providerId, revision] of Object.entries(payload.catalogs)) {
         if (catalogs.get(providerId) !== revision) errors.push(`decision ${payload.decision_id} references unobserved catalog ${providerId}@${revision}`);
@@ -99,7 +99,7 @@ export function executeErrors(catalog, request) {
   if (request.expected_state_revision !== catalog.state_revision) errors.push("stale_state");
   if (!action.availability.available) errors.push(`action_unavailable:${action.availability.reason_code}`);
   if (!action.phases.includes(request.phase)) errors.push("unsafe_phase");
-  if (request.phase === "commit" && action.safety.requires_final && !request.evidence.final) errors.push("finality_required");
+  if (request.phase === "commit" && action.safety.requires_final && request.evidence.status !== "final") errors.push("finality_required");
   if (request.phase === "commit" && action.safety.confirmation_required && !request.confirmed) errors.push("confirmation_required");
   if (request.phase === "cancel" && !request.prepared_receipt_id) errors.push("invalid_request");
   return errors;

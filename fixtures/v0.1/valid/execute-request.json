@@ -8,5 +8,11 @@
   "expected_catalog_revision": "cat:surf:8",
   "expected_state_revision": "state:surf:51",
   "confirmed": false,
-  "evidence": { "utterance_id": "utt_91", "transcript_revision": 3, "final": false }
+  "evidence": {
+    "chain_id": "voice:neo:turn-91",
+    "revision": 3,
+    "supersedes_revision": 2,
+    "kind": "text.transcript",
+    "status": "partial"
+  }
 }

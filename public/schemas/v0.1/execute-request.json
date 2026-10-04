@@ -18,12 +18,15 @@
     "evidence": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["utterance_id", "transcript_revision", "final"],
+      "required": ["chain_id", "revision", "kind", "status"],
       "properties": {
-        "utterance_id": { "$ref": "common.json#/$defs/id" },
-        "transcript_revision": { "type": "integer", "minimum": 1 },
-        "final": { "type": "boolean" }
-      }
+        "chain_id": { "$ref": "common.json#/$defs/id" },
+        "revision": { "type": "integer", "minimum": 1 },
+        "supersedes_revision": { "type": "integer", "minimum": 1 },
+        "kind": { "$ref": "common.json#/$defs/evidence_kind" },
+        "status": { "$ref": "common.json#/$defs/evidence_status" }
+      },
+      "allOf": [{ "if": { "properties": { "revision": { "const": 1 } }, "required": ["revision"] }, "then": { "not": { "required": ["supersedes_revision"] } }, "else": { "required": ["supersedes_revision"] } }]
     }
   },
   "allOf": [

@@ -8,5 +8,5 @@
   "expected_catalog_revision": "cat:4fba",
   "expected_state_revision": "state:old",
   "confirmed": false,
-  "evidence": { "utterance_id": "utt_scene_1", "transcript_revision": 4, "final": true }
+  "evidence": { "chain_id": "voice:room:scene-1", "revision": 4, "supersedes_revision": 3, "kind": "text.transcript", "status": "final" }
 }

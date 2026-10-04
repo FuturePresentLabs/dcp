@@ -10,28 +10,30 @@
     "session_id": { "$ref": "common.json#/$defs/id" },
     "sequence": { "type": "integer", "minimum": 1 },
     "occurred_at": { "$ref": "common.json#/$defs/timestamp" },
-    "type": { "enum": ["transcript.observed", "catalog.observed", "decision.proposed", "action.prepared", "decision.committed", "decision.cancelled", "execution.receipt"] },
+    "type": { "enum": ["evidence.observed", "catalog.observed", "decision.proposed", "action.prepared", "decision.committed", "decision.cancelled", "decision.reconciled", "execution.receipt"] },
     "payload": { "type": "object" }
   },
   "allOf": [
-    { "if": { "properties": { "type": { "const": "transcript.observed" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "#/$defs/transcript" } } } },
+    { "if": { "properties": { "type": { "const": "evidence.observed" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "#/$defs/evidence" } } } },
     { "if": { "properties": { "type": { "const": "catalog.observed" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "#/$defs/catalog_observed" } } } },
     { "if": { "properties": { "type": { "const": "decision.proposed" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "#/$defs/decision" } } } },
     { "if": { "properties": { "type": { "const": "action.prepared" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "#/$defs/execution_event" } } } },
     { "if": { "properties": { "type": { "const": "decision.committed" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "#/$defs/execution_event" } } } },
     { "if": { "properties": { "type": { "const": "decision.cancelled" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "#/$defs/cancelled" } } } },
+    { "if": { "properties": { "type": { "const": "decision.reconciled" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "#/$defs/reconciled" } } } },
     { "if": { "properties": { "type": { "const": "execution.receipt" } }, "required": ["type"] }, "then": { "properties": { "payload": { "$ref": "receipt.json" } } } }
   ],
   "$defs": {
-    "transcript": {
+    "evidence": {
       "type": "object", "additionalProperties": false,
-      "required": ["utterance_id", "revision", "text", "final"],
+      "required": ["chain_id", "revision", "kind", "status", "value"],
       "properties": {
-        "utterance_id": { "$ref": "common.json#/$defs/id" },
+        "chain_id": { "$ref": "common.json#/$defs/id" },
         "revision": { "type": "integer", "minimum": 1 },
         "supersedes_revision": { "type": "integer", "minimum": 1 },
-        "text": { "type": "string" },
-        "final": { "type": "boolean" }
+        "kind": { "$ref": "common.json#/$defs/evidence_kind" },
+        "status": { "$ref": "common.json#/$defs/evidence_status" },
+        "value": {}
       },
       "allOf": [{ "if": { "properties": { "revision": { "const": 1 } }, "required": ["revision"] }, "then": { "not": { "required": ["supersedes_revision"] } }, "else": { "required": ["supersedes_revision"] } }]
     },
@@ -46,12 +48,12 @@
     },
     "decision": {
       "type": "object", "additionalProperties": false,
-      "required": ["decision_id", "parent_decision_id", "utterance_id", "transcript_revision", "catalogs", "selection"],
+      "required": ["decision_id", "parent_decision_id", "chain_id", "evidence_revision", "catalogs", "selection"],
       "properties": {
         "decision_id": { "$ref": "common.json#/$defs/id" },
         "parent_decision_id": { "oneOf": [{ "$ref": "common.json#/$defs/id" }, { "type": "null" }] },
-        "utterance_id": { "$ref": "common.json#/$defs/id" },
-        "transcript_revision": { "type": "integer", "minimum": 1 },
+        "chain_id": { "$ref": "common.json#/$defs/id" },
+        "evidence_revision": { "type": "integer", "minimum": 1 },
         "catalogs": { "type": "object", "minProperties": 1, "additionalProperties": { "$ref": "common.json#/$defs/revision" } },
         "selection": {
           "type": "object", "additionalProperties": false,
@@ -72,7 +74,19 @@
     "cancelled": {
       "type": "object", "additionalProperties": false,
       "required": ["decision_id", "reason"],
-      "properties": { "decision_id": { "$ref": "common.json#/$defs/id" }, "receipt_id": { "$ref": "common.json#/$defs/id" }, "reason": { "enum": ["superseded", "final_mismatch", "catalog_changed", "state_changed", "caller_cancelled", "provider_cancelled"] } }
+      "properties": { "decision_id": { "$ref": "common.json#/$defs/id" }, "receipt_id": { "$ref": "common.json#/$defs/id" }, "reason": { "enum": ["superseded", "evidence_mismatch", "catalog_changed", "state_changed", "caller_cancelled", "provider_cancelled"] } }
+    },
+    "reconciled": {
+      "type": "object", "additionalProperties": false,
+      "required": ["decision_id", "chain_id", "evidence_revision", "outcome"],
+      "properties": {
+        "decision_id": { "$ref": "common.json#/$defs/id" },
+        "replacement_decision_id": { "$ref": "common.json#/$defs/id" },
+        "receipt_id": { "$ref": "common.json#/$defs/id" },
+        "chain_id": { "$ref": "common.json#/$defs/id" },
+        "evidence_revision": { "type": "integer", "minimum": 1 },
+        "outcome": { "enum": ["confirmed", "replaced", "cancelled", "compensated"] }
+      }
     }
   }
 }

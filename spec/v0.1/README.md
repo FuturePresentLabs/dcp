@@ -64,7 +64,7 @@ availability, and all four safety properties:
 
 - `idempotent`: replay with the same request ID has no additional effect.
 - `reversible`: the provider has a bounded compensating or cancellation action.
-- `requires_final`: commit requires final transcript evidence.
+- `requires_final`: commit requires evidence whose status is `final`.
 - `confirmation_required`: commit requires explicit confirmation evidence.
 
 A provider MUST reject a phase not listed by the action. Phase membership is
@@ -79,7 +79,7 @@ execute MUST validate again.
 
 The lifecycle is `observe → speculate → prepare → commit | cancel`.
 
-1. **Observe:** clients accumulate transcript and catalog evidence without an
+1. **Observe:** clients accumulate source evidence and catalog evidence without an
    effect.
 2. **Speculate:** a decision system appends a proposed bounded selection. A
    proposal is not execution authority.
@@ -101,14 +101,17 @@ Core messages are transport-neutral and use the `stream-message` schema. Within
 a session, `sequence` MUST increase by exactly one. Events are append-only and
 MUST NOT mutate earlier events.
 
-For one utterance, transcript revisions MUST increase by exactly one. Revision
-one MUST omit `supersedes_revision`; every later revision MUST name the previous
-revision. `text` is the complete transcript at that revision, not a delta.
-`final` is explicit and monotonic: once true, no later transcript revision is
-valid.
+For one evidence chain, revisions MUST increase by exactly one. Revision one
+MUST omit `supersedes_revision`; every later revision MUST name the previous
+revision. `value` is the complete evidence value at that revision, not a delta.
+`kind` identifies its provider-neutral semantics (for example
+`text.transcript`, `text.command`, `presence.snapshot`, or `vision.scene`).
+`status` is `partial`, `final`, or `retracted`; `final` and `retracted` are
+terminal, so no later revision is valid. DCP does not define how a producer
+tokenizes, captures, or derives evidence.
 
-Each `decision.proposed` MUST reference exact transcript and catalog revisions.
-Its `parent_decision_id` MUST refer to an earlier decision in the same utterance
+Each `decision.proposed` MUST reference exact evidence and catalog revisions.
+Its `parent_decision_id` MUST refer to an earlier decision in the same evidence chain
 or be null for the root. The parent relation MUST be acyclic. A new decision
 does not erase its parent; it adds a new chain node.
 
@@ -116,6 +119,12 @@ does not erase its parent; it adds a new chain node.
 No later execution event may revive a terminal decision. Consumers rebuilding
 state MUST fold events in sequence order and MUST fail closed on a gap,
 duplicate, invalid parent, or unknown revision.
+
+Final evidence MUST reconcile every prepared or proposed decision reachable
+from the chain. A `decision.reconciled` event records `confirmed`, `replaced`,
+`cancelled`, or `compensated`; replacement names the new decision and
+compensation names the receipt when one exists. Reconciliation records history
+and grants no execution authority by itself.
 
 ### WebSocket binding
 
@@ -151,6 +160,7 @@ Errors use the `problem` shape and one of these stable codes:
 | `action_unavailable` | Action exists but is not currently legal | 409 |
 | `stale_catalog` | Catalog revision differs | 409 |
 | `stale_state` | State revision differs | 409 |
+| `stale_evidence` | Evidence revision was superseded or retracted | 409 |
 | `finality_required` | Commit lacks final evidence | 409 |
 | `confirmation_required` | Commit lacks required confirmation | 409 |
 | `unsafe_phase` | Action does not permit the phase | 409 |
@@ -166,7 +176,7 @@ Error details MUST NOT disclose credentials or sensitive internal selectors.
   revision behavior; action schemas and safety declarations.
 - **Executor:** Catalog Provider plus revision-bound execute, idempotency,
   receipts, authorization enforcement, lifecycle and error behavior.
-- **Streaming:** valid stream messages plus monotonic sequence, transcript
+- **Streaming:** valid stream messages plus monotonic sequence, evidence
   supersession, append-only decision-chain, terminality, and cancellation.
 - **Directory Listed:** one or more named profiles, public source or documented
   implementation, valid redacted fixtures, conformance command and versioned

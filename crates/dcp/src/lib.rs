@@ -137,10 +137,47 @@ pub struct ExecuteRequest {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Evidence {
-    pub utterance_id: String,
-    pub transcript_revision: u64,
-    #[serde(rename = "final")]
-    pub final_: bool,
+    pub chain_id: String,
+    pub revision: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub supersedes_revision: Option<u64>,
+    pub kind: String,
+    pub status: EvidenceStatus,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum EvidenceStatus {
+    Partial,
+    Final,
+    Retracted,
+}
+
+impl Evidence {
+    #[must_use]
+    pub fn is_final(&self) -> bool {
+        self.status == EvidenceStatus::Final
+    }
+
+    pub fn validate_revision(&self) -> Result<(), &'static str> {
+        match (self.revision, self.supersedes_revision) {
+            (0, _) => Err("evidence revision must start at one"),
+            (1, None) => Ok(()),
+            (1, Some(_)) => Err("evidence revision one must not supersede another revision"),
+            (revision, Some(previous)) if previous + 1 == revision => Ok(()),
+            (_, Some(_)) => Err("evidence must supersede the immediately preceding revision"),
+            (_, None) => Err("evidence revisions after one must name supersedes_revision"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ReconciliationOutcome {
+    Confirmed,
+    Replaced,
+    Cancelled,
+    Compensated,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -197,6 +234,7 @@ pub enum ErrorCode {
     ActionUnavailable,
     StaleCatalog,
     StaleState,
+    StaleEvidence,
     FinalityRequired,
     ConfirmationRequired,
     UnsafePhase,
@@ -236,5 +274,31 @@ mod tests {
         ] {
             assert!(value.is_object());
         }
+    }
+
+    #[test]
+    fn evidence_revisions_are_contiguous_and_terminal_status_is_explicit() {
+        let first = Evidence {
+            chain_id: "typed:neo:7".into(),
+            revision: 1,
+            supersedes_revision: None,
+            kind: "text.command".into(),
+            status: EvidenceStatus::Partial,
+        };
+        assert_eq!(first.validate_revision(), Ok(()));
+        let second = Evidence {
+            revision: 2,
+            supersedes_revision: Some(1),
+            status: EvidenceStatus::Final,
+            ..first
+        };
+        assert_eq!(second.validate_revision(), Ok(()));
+        assert!(second.is_final());
+        let stale = Evidence {
+            revision: 4,
+            supersedes_revision: Some(1),
+            ..second
+        };
+        assert!(stale.validate_revision().is_err());
     }
 }

@@ -26,7 +26,7 @@ action, execute, receipt, error, and directory-entry contracts; and a
 transport-neutral streaming event model with a WebSocket binding.
 
 DCP also defines speculative, per-word operation as an append-only decision
-chain. Transcript revisions accumulate evidence; safe actions may be prepared
+chain. Evidence revisions accumulate state; safe actions may be prepared
 early; explicit finality commits one valid selection; superseded preparations
 are cancelled. Confidence alone never grants execution authority.
 

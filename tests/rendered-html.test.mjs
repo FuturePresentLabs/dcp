@@ -27,7 +27,7 @@ test("renders the DCP standards reference", async () => {
 
 test("documents monotonic evidence and bounded preparation", async () => {
   const html = await (await render()).text();
-  assert.match(html, /Transcript revisions MUST increase monotonically/);
+  assert.match(html, /Evidence revisions MUST increase monotonically/);
   assert.match(html, /idempotent, reversible, and safe-before-final/);
   assert.match(html, /parent_decision/);
   assert.match(html, /catalogs/);

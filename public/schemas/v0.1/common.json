@@ -6,6 +6,8 @@
     "revision": { "type": "string", "minLength": 1, "maxLength": 256 },
     "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$" },
     "timestamp": { "type": "string", "format": "date-time" },
+    "evidence_kind": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$" },
+    "evidence_status": { "enum": ["partial", "final", "retracted"] },
     "provider": {
       "type": "object",
       "additionalProperties": false,
@@ -17,7 +19,7 @@
       }
     },
     "error_code": {
-      "enum": ["invalid_request", "unsupported_version", "unauthorized", "forbidden", "action_not_found", "action_unavailable", "stale_catalog", "stale_state", "finality_required", "confirmation_required", "unsafe_phase", "conflict", "cancellation_failed", "internal_error"]
+      "enum": ["invalid_request", "unsupported_version", "unauthorized", "forbidden", "action_not_found", "action_unavailable", "stale_catalog", "stale_state", "stale_evidence", "finality_required", "confirmation_required", "unsafe_phase", "conflict", "cancellation_failed", "internal_error"]
     },
     "problem": {
       "type": "object",

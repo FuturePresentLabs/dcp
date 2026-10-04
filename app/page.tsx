@@ -159,7 +159,7 @@ export default function Home() {
         <div className="section-tag">04 / SPECULATIVE STREAMING</div>
         <div className="stream-head">
           <h2>DECIDE WHILE<br/>THE WORDS ARRIVE.</h2>
-          <p>Per-word operation is part of DCP, not an implementation trick. Each transcript revision extends or supersedes prior evidence. Decisions form an append-only chain, so preparation can start early without confusing a guess for a command.</p>
+          <p>Incremental operation is part of DCP, not an implementation trick. Each evidence revision extends or supersedes prior evidence. Voice can revise per word; typed, vision, and sensor inputs use the same append-only chain.</p>
         </div>
         <div className="utterance" aria-label="Example incremental utterance">
           {["OPEN", "A", "BROWSER", "AND", "GO", "TO", "FPL.DEV"].map((word, index) => (
@@ -170,7 +170,7 @@ export default function Home() {
           ))}
         </div>
         <div className="lifecycle">
-          <article><span>01</span><b>OBSERVE</b><p>Accept a monotonic transcript revision and fresh provider catalogs.</p></article>
+          <article><span>01</span><b>OBSERVE</b><p>Accept a monotonic evidence revision and fresh provider catalogs.</p></article>
           <article><span>02</span><b>SPECULATE</b><p>Append a hypothesis referencing its parent decision and exact evidence.</p></article>
           <article><span>03</span><b>PREPARE</b><p>Only actions declared idempotent, reversible, and safe-before-final may run.</p></article>
           <article><span>04</span><b>COMMIT / CANCEL</b><p>Final evidence commits one valid action; superseded preparation is explicitly cancelled.</p></article>
@@ -178,12 +178,12 @@ export default function Home() {
         <div className="normative-grid">
           <div>
             <h3>THE DECISION CHAIN</h3>
-            <p>State accumulates as events—not an opaque model memory. Every decision names its parent, transcript revision, catalog revisions, phase, and resulting receipts.</p>
+            <p>State accumulates as events—not an opaque model memory. Every decision names its parent, evidence revision, catalog revisions, phase, and resulting receipts.</p>
             <ul>
-              <li>Transcript revisions MUST increase monotonically.</li>
+              <li>Evidence revisions MUST increase monotonically.</li>
               <li>A new decision MUST name the evidence it supersedes.</li>
               <li>Catalog changes MUST invalidate selections from an older revision.</li>
-              <li>Finality MUST be explicit; confidence alone never commits an utterance.</li>
+              <li>Finality MUST be explicit; confidence alone never commits a decision.</li>
             </ul>
           </div>
           <pre><code>{`{
@@ -196,8 +196,8 @@ export default function Home() {
   "payload": {
     "decision_id": "dec_03",
     "parent_decision_id": "dec_02",
-    "utterance_id": "utt_91",
-    "transcript_revision": 3,
+    "chain_id": "voice:neo:turn-91",
+    "evidence_revision": 3,
     "catalogs": { "surf": "cat_104" },
     "selection": {
       "provider_id": "surf",

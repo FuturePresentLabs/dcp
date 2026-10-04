@@ -1,4 +1,4 @@
 [
-  { "dcp_version": "0.1", "message_id": "m1", "session_id": "s1", "sequence": 1, "occurred_at": "2026-10-03T06:00:00Z", "type": "transcript.observed", "payload": { "utterance_id": "u1", "revision": 1, "text": "open", "final": false } },
-  { "dcp_version": "0.1", "message_id": "m3", "session_id": "s1", "sequence": 3, "occurred_at": "2026-10-03T06:00:00Z", "type": "transcript.observed", "payload": { "utterance_id": "u1", "revision": 2, "supersedes_revision": 1, "text": "open browser", "final": false } }
+  { "dcp_version": "0.1", "message_id": "m1", "session_id": "s1", "sequence": 1, "occurred_at": "2026-10-03T06:00:00Z", "type": "evidence.observed", "payload": { "chain_id": "u1", "revision": 1, "kind": "text.transcript", "status": "partial", "value": "open" } },
+  { "dcp_version": "0.1", "message_id": "m3", "session_id": "s1", "sequence": 3, "occurred_at": "2026-10-03T06:00:00Z", "type": "evidence.observed", "payload": { "chain_id": "u1", "revision": 2, "supersedes_revision": 1, "kind": "text.transcript", "status": "partial", "value": "open browser" } }
 ]
