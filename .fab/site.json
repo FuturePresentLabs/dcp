@@ -8,9 +8,9 @@
   "domain": "dcp.fpl.dev",
   "path": "/",
   "autoPromoteProduction": false,
-  "installCommand": "npm exec --yes --package=node@$(node -p 'require(\"./package.json\").devDependencies.node') -- node \"$(command -v npm)\" ci --include=optional",
-  "buildCommand": "npm run build && node --test tests/static-export.test.mjs",
+  "installCommand": "npm exec --yes --package=node@$NODE_VERSION -- node \"$(command -v npm)\" ci --include=optional",
+  "buildCommand": "npm exec --yes --package=node@$NODE_VERSION -- node \"$(command -v npm)\" run build && node --test tests/static-export.test.mjs",
   "publishDir": "dist/client",
   "framework": "static",
-  "env": { "FAB_STATIC_EXPORT": "1" }
+  "env": { "FAB_STATIC_EXPORT": "1", "NODE_VERSION": "22.23.3" }
 }
