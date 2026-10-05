@@ -14,8 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("host") ?? "decisions.directory";
+  const host = process.env.FAB_STATIC_EXPORT === "1"
+    ? "dcp.fpl.dev"
+    : (await headers()).get("host") ?? "decisions.directory";
   const protocol = host.includes("localhost") ? "http" : "https";
   const image = `${protocol}://${host}/og.png`;
   const title = "DCP — Decision Catalog Protocol";

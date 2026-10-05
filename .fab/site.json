@@ -1,0 +1,16 @@
+{
+  "id": "dcp",
+  "project": "fpl",
+  "defaultHostname": "dcp.sites.fpl.dev",
+  "githubRepo": "FuturePresentLabs/dcp",
+  "gitUrl": "https://github.com/FuturePresentLabs/dcp.git",
+  "productionBranch": "main",
+  "domain": "dcp.fpl.dev",
+  "path": "/",
+  "autoPromoteProduction": false,
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build && node --test tests/static-export.test.mjs",
+  "publishDir": "dist/client",
+  "framework": "static",
+  "env": { "FAB_STATIC_EXPORT": "1" }
+}
