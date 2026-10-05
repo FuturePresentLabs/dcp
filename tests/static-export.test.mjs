@@ -10,7 +10,9 @@ test("Fab export includes rendered content, metadata, assets and schemas", {
   assert.match(html, /DCP — Decision Catalog Protocol/);
   assert.match(html, /SPECULATIVE STREAMING/);
   assert.match(html, /https:\/\/dcp\.fpl\.dev\/og.png/);
-  for (const match of html.matchAll(/(?:src|href)="(\/assets\/[^"?#]+)/g)) {
+  const assets = [...html.matchAll(/(?:src|href)="(\/[^"?#]+\.(?:css|js))(?:\?[^"]*)?"/g)];
+  assert.ok(assets.length > 0, "export must link its JS/CSS assets");
+  for (const match of assets) {
     await access(new URL(match[1].slice(1), root));
   }
   await access(new URL("favicon.svg", root));
