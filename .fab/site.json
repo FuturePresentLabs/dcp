@@ -8,7 +8,7 @@
   "domain": "dcp.fpl.dev",
   "path": "/",
   "autoPromoteProduction": false,
-  "installCommand": "npm ci",
+  "installCommand": "npm exec --yes --package=node@$(node -p 'require(\"./package.json\").devDependencies.node') -- node \"$(command -v npm)\" ci --include=optional",
   "buildCommand": "npm run build && node --test tests/static-export.test.mjs",
   "publishDir": "dist/client",
   "framework": "static",
