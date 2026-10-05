@@ -41,6 +41,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <script
+          src="https://understory.fpl.dev/widget.js"
+          data-site="dcp"
+          defer
+        />
       </body>
     </html>
   );
