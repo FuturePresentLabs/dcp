@@ -185,3 +185,35 @@ Error details MUST NOT disclose credentials or sensitive internal selectors.
 A compatibility claim MUST name an exact DCP version and profile. “DCP
 compatible” without both is not a conformant claim. Directory entries MUST use
 the directory-entry schema and MUST distinguish `self-tested` from `verified`.
+
+## Optional typed decision context
+
+Providers MAY include `state.decision_context`, described by
+`decision-context.json` and the Rust `dcp::context` module. This extension does
+not alter action input schemas, execution authorization or receipts.
+Its `source_revision` MUST equal the catalog's `state_revision`. Input IDs MUST
+be unique. The context and its immutable artifact descriptors MUST participate
+in catalog revision identity; changing an input requires a new catalog revision.
+
+Inputs declare a kind (`structured`, `geometry`, `text`, `image`, `pdf`), a
+provider-owned schema identifier and whether the input is required. Geometry
+MUST specify units and a coordinate frame. The recipe owns feature extraction,
+tokenization and embeddings; none of those are protocol fields. An advertised
+input is not a claim that a model supports that modality. Consumers MUST reject
+unsupported required inputs before inference; unsupported optional inputs MAY
+be omitted and that omission SHOULD be reported by the inference frontend.
+
+Structured/text/geometry inputs may be inline, with a total serialized inline
+budget of 256KiB. Images and PDFs MUST use artifact descriptors with URI, SHA256,
+media type and exact byte length. Inline null values are invalid. Consumers MUST
+validate the source revision, uniqueness and size bounds in addition to JSON
+Schema. An artifact URI is not permission to fetch: resolvers MUST enforce
+provider authorization, URI/host allowlists, redirect restrictions and their own
+size limits, then verify bytes, digest and media type before decoding. No local
+filesystem or data URI is allowed. URNs require a provider-specific resolver.
+PDF parsing and rasterization require separate bounded/sandboxed decoders;
+document contents are untrusted observations, not instructions or authority.
+
+This is optional context discovery, not model-generated context, a new tool-call
+format, or manufacturing certification. Do not embed teacher answers, verdicts
+or private credentials in context offered to a decision model.

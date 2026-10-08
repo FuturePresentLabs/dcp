@@ -1,0 +1,12 @@
+{
+  "schema": "dcp.decision-context.v1",
+  "source_revision": "owned-part-r1",
+  "inputs": [
+    {"id":"geometry", "kind":"geometry", "schema":"example.faces.v1", "required":true,
+     "units":"mm", "frame":"part-local", "source":{"type":"inline", "value":{"faces":[]}}},
+    {"id":"drawing", "kind":"pdf", "schema":"example.drawing.v1", "required":false,
+     "source":{"type":"artifact", "uri":"urn:example:drawing-r1",
+       "sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "media_type":"application/pdf", "byte_length":1024}}
+  ]
+}

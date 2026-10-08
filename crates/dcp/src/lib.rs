@@ -8,6 +8,8 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+pub mod context;
+
 pub const VERSION: &str = "0.1";
 pub const SPEC: &str = "https://decisions.directory/spec/v0.1";
 pub const SCHEMA_2020_12: &str = "https://json-schema.org/draft/2020-12/schema";

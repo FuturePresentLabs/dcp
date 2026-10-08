@@ -11,7 +11,9 @@
     "state_revision": { "$ref": "common.json#/$defs/revision" },
     "observed_at": { "$ref": "common.json#/$defs/timestamp" },
     "expires_at": { "$ref": "common.json#/$defs/timestamp" },
-    "state": { "type": "object" },
+    "state": { "type": "object", "properties": {
+      "decision_context": { "$ref": "decision-context.json" }
+    } },
     "actions": {
       "type": "array",
       "items": {

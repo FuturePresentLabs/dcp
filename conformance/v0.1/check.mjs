@@ -14,7 +14,7 @@ export function readJson(relativePath) {
 export function createValidator() {
   const ajv = new Ajv2020({ allErrors: true, strict: true, strictRequired: false });
   addFormats(ajv);
-  for (const name of ["common", "discovery", "catalog", "execute-request", "receipt", "stream-message", "directory-entry"]) {
+  for (const name of ["common", "discovery", "decision-context", "catalog", "execute-request", "receipt", "stream-message", "directory-entry"]) {
     ajv.addSchema(readJson(`public/schemas/v0.1/${name}.json`));
   }
   return ajv;
@@ -107,8 +107,21 @@ export function executeErrors(catalog, request) {
 
 export function validateFixtureSet() {
   const ajv = createValidator();
-  for (const name of ["discovery", "catalog", "execute-request", "receipt", "directory-entry"]) {
+  for (const name of ["discovery", "decision-context", "catalog", "execute-request", "receipt", "directory-entry"]) {
     assertSchema(ajv, name, readJson(`fixtures/v0.1/valid/${name}.json`));
+  }
+  const context = readJson("fixtures/v0.1/valid/decision-context.json");
+  const validateContext = ajv.getSchema("https://decisions.directory/schemas/v0.1/decision-context.json");
+  for (const mutate of [
+    (v) => { delete v.inputs[0].frame; },
+    (v) => { v.inputs[1].source.sha256 = "not-a-digest"; },
+    (v) => { v.inputs[1].source.media_type = "image/png"; },
+    (v) => { v.inputs[1].source = { type: "inline", value: "PDF" }; },
+    (v) => { v.inputs[1].source.uri = "file:///private/drawing.pdf"; },
+  ]) {
+    const invalid = structuredClone(context);
+    mutate(invalid);
+    if (validateContext(invalid)) throw new Error("invalid decision context accepted");
   }
   const stream = readJson("fixtures/v0.1/valid/stream.json");
   for (const message of stream) assertSchema(ajv, "stream-message", message);
