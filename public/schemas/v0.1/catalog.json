@@ -12,7 +12,12 @@
     "observed_at": { "$ref": "common.json#/$defs/timestamp" },
     "expires_at": { "$ref": "common.json#/$defs/timestamp" },
     "state": { "type": "object", "properties": {
-      "decision_context": { "$ref": "decision-context.json" }
+      "decision_context": { "$ref": "decision-context.json" },
+      "https://decisions.directory/profiles/parameter-rounds/0.1": {
+        "type": "object", "additionalProperties": false,
+        "required": ["endpoint"],
+        "properties": {"endpoint": {"type": "string", "minLength": 1, "format": "uri-reference"}}
+      }
     } },
     "actions": {
       "type": "array",

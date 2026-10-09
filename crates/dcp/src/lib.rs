@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 pub mod context;
+pub mod parameters;
 
 pub const VERSION: &str = "0.1";
 pub const SPEC: &str = "https://decisions.directory/spec/v0.1";

@@ -32,6 +32,11 @@ are cancelled. Confidence alone never grants execution authority.
 
 ## Implementations and directory listings
 
+The [parameter rounds profile](spec/v0.1/parameter-rounds.md) standardizes
+read-only follow-up questions after action/target selection: validated datums,
+named parameters, prompt literals, or bounded numeric estimates. Its schemas
+and Rust types preserve revisions and leave joint validation with the provider.
+
 The site lists DCP providers and clients with links to their source. To request
 a listing, publish `/.well-known/dcp`, provide a deterministic catalog fixture,
 declare each action's execution semantics, and open a listing issue or pull

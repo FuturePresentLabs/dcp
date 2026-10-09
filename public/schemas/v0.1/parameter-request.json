@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://decisions.directory/schemas/v0.1/parameter-request.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["profile", "request_id", "action_id", "expected_catalog_revision", "expected_state_revision", "arguments"],
+  "properties": {
+    "profile": {"const": "https://decisions.directory/profiles/parameter-rounds/0.1"},
+    "request_id": {"type": "string", "minLength": 1},
+    "action_id": {"type": "string", "minLength": 1},
+    "expected_catalog_revision": {"type": "string", "minLength": 1},
+    "expected_state_revision": {"type": "string", "minLength": 1},
+    "arguments": {"type": "object"}
+  }
+}

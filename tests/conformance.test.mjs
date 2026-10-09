@@ -1,8 +1,29 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { catalogErrors, createValidator, executeErrors, readJson, streamErrors } from "../conformance/v0.1/check.mjs";
+import { catalogErrors, createValidator, executeErrors, readJson, streamErrors, parameterRoundErrors } from "../conformance/v0.1/check.mjs";
 
 const ajv = createValidator();
+
+test("parameter rounds are strict, bounded and bound to the selected target", () => {
+  const request = readJson("fixtures/v0.1/valid/parameter-request.json");
+  const round = readJson("fixtures/v0.1/valid/parameter-round.json");
+  assert.equal(validates("parameter-request", "fixtures/v0.1/valid/parameter-request.json"), true);
+  assert.equal(validates("parameter-round", "fixtures/v0.1/valid/parameter-round.json"), true);
+  assert.deepEqual(parameterRoundErrors(request, round), []);
+  for (const mutate of [
+    (r) => { r.arguments.target = "body.2"; },
+    (r) => { r.expected_state_revision = "stale"; },
+    (r) => { r.fields[0].maximum = 0; },
+    (r) => { r.fields[0].candidates[0].value = 11; },
+    (r) => { r.fields.push(structuredClone(r.fields[0])); },
+    (r) => { r.fields[0].allow_bounded_estimate = false; r.fields[0].candidates = []; },
+  ]) {
+    const bad = structuredClone(round); mutate(bad);
+    assert.ok(parameterRoundErrors(request, bad).length > 0);
+  }
+  const validate = ajv.getSchema("https://decisions.directory/schemas/v0.1/parameter-round.json");
+  assert.equal(validate({...round, commit: true}), false);
+});
 
 function validates(schema, fixture) {
   const validate = ajv.getSchema(`https://decisions.directory/schemas/v0.1/${schema}.json`);

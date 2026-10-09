@@ -1,0 +1,11 @@
+{
+  "profile": "https://decisions.directory/profiles/parameter-rounds/0.1",
+  "request_id": "bore-parameters-1", "action_id": "cut.bore",
+  "expected_catalog_revision": "catalog-1", "expected_state_revision": "state-1",
+  "arguments": {"target": "body.1"},
+  "fields": [{
+    "name": "diameter", "unit": "mm", "reference_frame": "part",
+    "minimum": 1, "maximum": 10, "allow_bounded_estimate": true,
+    "candidates": [{"id": "datum.mounting-bore", "value": 5, "source": "datum"}]
+  }]
+}

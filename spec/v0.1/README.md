@@ -77,6 +77,11 @@ execute MUST validate again.
 
 ## 5. Lifecycle
 
+Providers MAY implement the standard opt-in
+[parameter rounds profile](parameter-rounds.md) to collect bounded numeric
+arguments after action and target selection. Collection is read-only and does
+not grant prepare or commit authority.
+
 The lifecycle is `observe → speculate → prepare → commit | cancel`.
 
 1. **Observe:** clients accumulate source evidence and catalog evidence without an

@@ -14,7 +14,7 @@ export function readJson(relativePath) {
 export function createValidator() {
   const ajv = new Ajv2020({ allErrors: true, strict: true, strictRequired: false });
   addFormats(ajv);
-  for (const name of ["common", "discovery", "decision-context", "catalog", "execute-request", "receipt", "stream-message", "directory-entry"]) {
+  for (const name of ["common", "discovery", "decision-context", "catalog", "execute-request", "receipt", "stream-message", "directory-entry", "parameter-request", "parameter-round"]) {
     ajv.addSchema(readJson(`public/schemas/v0.1/${name}.json`));
   }
   return ajv;
@@ -40,6 +40,33 @@ export function catalogErrors(catalog) {
     for (const child of node.children ?? []) visit(child);
   };
   for (const node of catalog.tree ?? []) visit(node);
+  return errors;
+}
+
+export function parameterRoundErrors(request, round) {
+  const errors = [];
+  for (const name of ["profile", "request_id", "action_id", "expected_catalog_revision", "expected_state_revision"]) {
+    if (round[name] !== request[name]) errors.push(`mismatched ${name}`);
+  }
+  // Object key order has no semantic meaning.
+  const canonical = (value) => Array.isArray(value) ? value.map(canonical)
+    : value !== null && typeof value === "object"
+      ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])])) : value;
+  if (JSON.stringify(canonical(round.arguments)) !== JSON.stringify(canonical(request.arguments))) errors.push("mismatched arguments");
+  const names = new Set();
+  for (const field of round.fields) {
+    if (names.has(field.name)) errors.push("duplicate field");
+    names.add(field.name);
+    if (Object.hasOwn(round.arguments, field.name)) errors.push("already resolved field");
+    if (!Number.isFinite(field.minimum) || !Number.isFinite(field.maximum) || field.minimum >= field.maximum) errors.push("invalid bounds");
+    if (!field.allow_bounded_estimate && field.candidates.length === 0) errors.push("no answer path");
+    const ids = new Set();
+    for (const candidate of field.candidates) {
+      if (ids.has(candidate.id)) errors.push("duplicate candidate");
+      ids.add(candidate.id);
+      if (!Number.isFinite(candidate.value) || candidate.value < field.minimum || candidate.value > field.maximum) errors.push("out of bounds candidate");
+    }
+  }
   return errors;
 }
 
@@ -107,7 +134,7 @@ export function executeErrors(catalog, request) {
 
 export function validateFixtureSet() {
   const ajv = createValidator();
-  for (const name of ["discovery", "decision-context", "catalog", "execute-request", "receipt", "directory-entry"]) {
+  for (const name of ["discovery", "decision-context", "catalog", "execute-request", "receipt", "directory-entry", "parameter-request", "parameter-round"]) {
     assertSchema(ajv, name, readJson(`fixtures/v0.1/valid/${name}.json`));
   }
   const context = readJson("fixtures/v0.1/valid/decision-context.json");
@@ -125,7 +152,8 @@ export function validateFixtureSet() {
   }
   const stream = readJson("fixtures/v0.1/valid/stream.json");
   for (const message of stream) assertSchema(ajv, "stream-message", message);
-  const semantic = [...catalogErrors(readJson("fixtures/v0.1/valid/catalog.json")), ...streamErrors(stream)];
+  const semantic = [...catalogErrors(readJson("fixtures/v0.1/valid/catalog.json")), ...streamErrors(stream),
+    ...parameterRoundErrors(readJson("fixtures/v0.1/valid/parameter-request.json"), readJson("fixtures/v0.1/valid/parameter-round.json"))];
   if (semantic.length) throw new Error(semantic.join("\n"));
 }
 
