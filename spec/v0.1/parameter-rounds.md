@@ -76,9 +76,11 @@ requirements. No Cartesian product of numeric combinations is required.
 
 ## Errors and conformance
 
-Failures MUST use the core typed error contract. Recommended codes are
-`unsupported_profile`, `stale_catalog`, `stale_state`, `invalid_arguments`,
-`unavailable_action` and `parameter_domain_unavailable`. Schema validation alone
+Failures MUST use the core typed error contract: `stale_catalog`, `stale_state`,
+`action_not_found`, `action_unavailable` or `invalid_request` as appropriate.
+Unsupported profiles, invalid arguments and unavailable numeric domains use
+`invalid_request` with an explanatory message; this profile adds no core error
+enum values. Schema validation alone
 does not check ordered bounds, uniqueness by field name/candidate ID, echo
 equality or joint constraints; conforming implementations MUST check these
 semantic invariants as well.
